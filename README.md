@@ -15,3 +15,5 @@ make install
 ```
 make notebook
 ```
+
+Workflow prototipe is [here](workflow.ipynb)
