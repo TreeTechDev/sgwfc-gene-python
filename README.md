@@ -1,4 +1,4 @@
-# r-sgwfc-gene
+# sgwfc-gene-python
 gene INCA workflow using Python
 
 ## Install
