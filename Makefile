@@ -8,4 +8,4 @@ notebook:
 	@jupyter-notebook
 
 flow:
-	@python workflow/graph_builder.py
+	@PREFECT__LOGGING__LEVEL=DEBUG python workflow/graph_builder.py

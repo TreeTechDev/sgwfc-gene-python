@@ -1,6 +1,7 @@
 import pandas
 import networkx
 from prefect import task, Flow
+import matplotlib.pyplot as plt
 
 
 @task
@@ -54,12 +55,19 @@ def build_interaction_graph(pattern_df: pandas.DataFrame) -> networkx.Graph:
         pattern_df, "node1", "node2", edge_attr=True)
 
 
+@task
+def show_output(graph: networkx.Graph):
+    networkx.draw_networkx(graph)
+    plt.savefig("results/graph.png", format="PNG")
+
+
 with Flow("Graph-Builder") as flow:
     string_data = extract_string()
     wgcna_data = extract_wgcna()
     node_interaction = define_node_interaction(string_data)
     gene_interactions = filter_reliable_interactions(node_interaction)
     gene_pattern_names = pattern_gene_names(gene_interactions, wgcna_data)
-    build_interaction_graph(gene_pattern_names)
+    result_graph = build_interaction_graph(gene_pattern_names)
+    show_output(result_graph)
 
 flow.run()
