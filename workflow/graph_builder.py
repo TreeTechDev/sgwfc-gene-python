@@ -45,6 +45,7 @@ def pattern_gene_names(
 
     assert reliable_df.node1.isin(wgcna_df.name).all()
     assert reliable_df.node2.isin(wgcna_df.name).all()
+    return reliable_df
 
 
 @task

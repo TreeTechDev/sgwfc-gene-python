@@ -8,4 +8,4 @@ notebook:
 	@jupyter-notebook
 
 flow:
-	@cd workflow && python graph_builder.py
+	@python workflow/graph_builder.py
