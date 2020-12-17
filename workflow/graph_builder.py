@@ -1,12 +1,12 @@
 import pandas
 import networkx
-from prefect import task, Flow
-import matplotlib.pyplot as plt
+from prefect import task, Flow, Parameter
+from prefect.engine.results import LocalResult
 
 
 @task
-def extract_string() -> pandas.DataFrame:
-    return pandas.read_csv("input/STRING/yellow_interactions.csv")
+def extract_string(filename: str) -> pandas.DataFrame:
+    return pandas.read_csv(filename)
 
 
 @task
@@ -55,19 +55,19 @@ def build_interaction_graph(pattern_df: pandas.DataFrame) -> networkx.Graph:
         pattern_df, "node1", "node2", edge_attr=True)
 
 
-@task
-def show_output(graph: networkx.Graph):
-    networkx.draw_networkx(graph)
-    plt.savefig("results/graph.png", format="PNG")
+@task(result=LocalResult(dir='results'))
+def save_output(graph: networkx.Graph) -> dict:
+    return networkx.readwrite.json_graph.cytoscape_data(graph)
 
 
-with Flow("Graph-Builder") as flow:
-    string_data = extract_string()
+with Flow("graph_building") as flow:
+    gene_filename = Parameter("gene_filename", default = "input/STRING/yellow_interactions.csv")
+    string_data = extract_string(gene_filename)
     wgcna_data = extract_wgcna()
     node_interaction = define_node_interaction(string_data)
     gene_interactions = filter_reliable_interactions(node_interaction)
     gene_pattern_names = pattern_gene_names(gene_interactions, wgcna_data)
     result_graph = build_interaction_graph(gene_pattern_names)
-    show_output(result_graph)
+    output = save_output(result_graph)
 
-flow.run()
+flow.register(project_name="sgwfc-gene", idempotency_key=flow.serialized_hash())

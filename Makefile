@@ -3,6 +3,8 @@
 install:
 	@pip install -r requirements.txt
 	@pip install -r workflow/requirements.txt
+	@prefect backend server
+	@prefect create project "sgwfc-gene"
 
 notebook:
 	@jupyter-notebook
