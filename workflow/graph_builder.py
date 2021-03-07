@@ -2,6 +2,7 @@ import pandas
 import networkx
 from prefect import task, Flow, Parameter
 from prefect.engine.results import LocalResult
+from prefect.run_configs import LocalRun
 
 
 @task
@@ -70,4 +71,5 @@ with Flow("graph_building") as flow:
     result_graph = build_interaction_graph(gene_pattern_names)
     output = save_output(result_graph)
 
+flow.run_config = LocalRun()
 flow.register(project_name="sgwfc-gene", idempotency_key=flow.serialized_hash())
