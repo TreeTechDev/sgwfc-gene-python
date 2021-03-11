@@ -45,6 +45,13 @@ Everytime you change the workflow you need to run this command to register it to
 make flow
 ```
 
+### Build Image to Run
+
+Docker image with all R and Python workflow dependecies is built with
+```
+make build
+```
+
 ### Test engine
 
 Will test the registered workflow calling it externally

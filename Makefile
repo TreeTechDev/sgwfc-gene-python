@@ -7,6 +7,9 @@ install:
 notebook:
 	@jupyter-notebook
 
+build:
+	@docker build . -t sgwfc/gene:latest
+
 flow:
 	@prefect create project sgwfc-gene
 	@PREFECT__LOGGING__LEVEL=DEBUG python workflow/graph_builder.py
