@@ -2,7 +2,7 @@
 gene INCA workflow using Python
 
 ## Install
-Make Python 3.5+ virtualenv
+Make Python 3.8+ virtualenv
 
 ```
 make install

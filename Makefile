@@ -8,6 +8,7 @@ notebook:
 	@jupyter-notebook
 
 flow:
+	@prefect create project sgwfc-gene
 	@PREFECT__LOGGING__LEVEL=DEBUG python workflow/graph_builder.py
 
 server:
@@ -16,8 +17,7 @@ server:
 
 agent:
 	@prefect backend server
-	@prefect create project sgwfc-gene
-	@prefect agent local start --api http://localhost:4200
+	@bash start_agent.sh
 
 test:
 	@python test.py

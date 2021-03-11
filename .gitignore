@@ -129,5 +129,6 @@ dmypy.json
 .pyre/
 
 # Project
+.vscode
 results/*
 !results/.keep

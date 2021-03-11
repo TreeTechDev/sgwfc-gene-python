@@ -1,6 +1,7 @@
 import time
 from prefect.tasks.prefect import StartFlowRun
 from prefect import Flow, task, Client
+from prefect.run_configs import LocalRun
 
 graph_building = StartFlowRun(
       flow_name="graph_building",
@@ -11,6 +12,7 @@ graph_building = StartFlowRun(
 with Flow("Call Flow") as flow:
     end_flow = graph_building(parameters=dict(gene_filename="input/STRING/yellow_interactions.csv"))
 
+flow.run_config = LocalRun(labels=["teste"])
 state = flow.run()
 flow_id = state.result[end_flow].result
 client = Client()
