@@ -1,4 +1,4 @@
-.PHONY: install notebook flow agent test
+.PHONY: install build notebook flow agent test
 
 install:
 	@pip install -r requirements.txt
