@@ -1,18 +1,19 @@
 import pandas
 import networkx
+import datetime
 import requests
-from typing import Iterable
+from typing import List
 from prefect import task
 from prefect.engine.results import LocalResult
 
 
 @task
-def extract_wgcna(filename: str) -> Iterable[str]:
+def extract_wgcna(filename: str) -> List[str]:
     with open(filename, "r") as f:
-        return filter(None, f.read().split("\n"))
+        return list(filter(None, f.read().split("\n")))
 
 
-@task(checkpoint=True, result=LocalResult(dir="result"))
+@task(checkpoint=True, result=LocalResult(dir="result"), cache_for=datetime.timedelta(days=1))
 def get_stringdb() -> pandas.DataFrame:
     df = pandas.read_csv(
         "https://stringdb-static.org/download/protein.links.detailed.v11.0/9606.protein.links.detailed.v11.0.txt.gz",
@@ -37,9 +38,9 @@ def get_stringdb() -> pandas.DataFrame:
 
 
 @task
-def extract_string_scores(identifiers: Iterable[str], db: pandas.DataFrame) -> pandas.DataFrame:
+def extract_string_scores(identifiers: List[str], db: pandas.DataFrame) -> pandas.DataFrame:
     df_genes = db[  
-        db.preferredName_A.isin(identifiers) | db.preferredName_B.isin(identifiers)]
+        db.preferredName_A.isin(identifiers) & db.preferredName_B.isin(identifiers)]
 
     df_genes["escore"] = df_genes["experimental"] / 1000.0
     df_genes["dscore"] = df_genes["database"] / 1000.0
@@ -55,19 +56,6 @@ def filter_reliable_interactions(
         ((node_df.escore >= 0.3) & (node_df.dscore >= 0.9))
     )
     return node_df[filters]
-
-
-@task
-def pattern_gene_names(
-        reliable_df: pandas.DataFrame,
-        wgcna_genes: Iterable[str]) -> pandas.DataFrame:
-
-    a_in_wgcna = reliable_df.preferredName_A.isin(wgcna_genes)
-    b_in_wgcna = reliable_df.preferredName_B.isin(wgcna_genes)
-    filtered_df = reliable_df[a_in_wgcna & b_in_wgcna]
-    assert filtered_df.preferredName_A.isin(wgcna_genes).all()
-    assert filtered_df.preferredName_B.isin(wgcna_genes).all()
-    return filtered_df
 
 
 @task
