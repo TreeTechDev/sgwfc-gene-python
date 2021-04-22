@@ -10,7 +10,7 @@ graph_building = StartFlowRun(
 )
 
 with Flow("Call Flow") as flow:
-    end_flow = graph_building(parameters=dict(gene_filename="input/WGCNA/module_yellow.txt"))
+    end_flow = graph_building(parameters=dict(gene_filename="/input/base_wgcna.csv"))
 
 flow.run_config = LocalRun(labels=["teste"])
 state = flow.run()

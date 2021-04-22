@@ -11,6 +11,7 @@ build:
 	@docker build . -t sgwfc/gene:latest
 
 flow:
+	@prefect backend server
 	@prefect create project sgwfc-gene
 	@PREFECT__LOGGING__LEVEL=DEBUG python workflow/graph_builder.py
 
