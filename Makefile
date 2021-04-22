@@ -3,6 +3,7 @@
 install:
 	@pip install -r requirements.txt
 	@pip install -r workflow/requirements.txt
+	@bash download.sh
 
 notebook:
 	@jupyter-notebook
