@@ -1,7 +1,7 @@
 import time
 from prefect.tasks.prefect import StartFlowRun
 from prefect import Flow, task, Client
-from prefect.run_configs import LocalRun
+from prefect.run_configs import DockerRun
 
 graph_building = StartFlowRun(
       flow_name="graph_building",
@@ -12,7 +12,10 @@ graph_building = StartFlowRun(
 with Flow("Call Flow") as flow:
     end_flow = graph_building(parameters=dict(gene_filename="/input/base_wgcna.csv"))
 
-flow.run_config = LocalRun(labels=["teste"])
+flow.run_config = DockerRun(
+    image="sgwfc/gene:latest",
+    labels=["teste"]
+)
 state = flow.run()
 flow_id = state.result[end_flow].result
 client = Client()
