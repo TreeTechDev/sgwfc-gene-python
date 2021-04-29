@@ -43,6 +43,7 @@ def extract_wgcna(filename: str) -> List[str]:
 
 @task(checkpoint=True, result=LocalResult(dir=RESULT_DIR), cache_for=datetime.timedelta(days=1))
 def get_stringdb() -> pandas.DataFrame:
+    logger = prefect.context.get("logger")
     df = pandas.read_csv(
         "https://stringdb-static.org/download/protein.links.detailed.v11.0/9606.protein.links.detailed.v11.0.txt.gz",
         sep=" "
@@ -61,14 +62,14 @@ def get_stringdb() -> pandas.DataFrame:
         df_renamed_p1, df_names, "left", left_on="protein2", right_on="protein_external_id"
     ).rename(columns={"preferred_name": "preferredName_B"}
     )[["preferredName_A", "preferredName_B", "experimental", "database"]]
-
+    logger.info(df_renamed.head())
     return df_renamed
 
 
 @task
 def extract_string_scores(identifiers: List[str], db: pandas.DataFrame) -> pandas.DataFrame:
     logger = prefect.context.get("logger")
-
+    logger.info(identifiers)
     df_genes = db[  
         db.preferredName_A.isin(identifiers) & db.preferredName_B.isin(identifiers)]
 
