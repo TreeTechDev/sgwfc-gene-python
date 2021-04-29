@@ -1,4 +1,4 @@
-from prefect import Flow, Parameter
+from prefect import Flow, Parameter, flatten
 from prefect.run_configs import DockerRun
 from prefect.executors import LocalDaskExecutor
 from modules import *
@@ -11,7 +11,7 @@ with Flow("graph_building") as flow:
     wgcna_color_filenames = get_color_filenames(wgcna_colors)
     wgcna_data = extract_wgcna.map(wgcna_color_filenames)
     string_db = get_stringdb()
-    string_data = extract_string_scores(wgcna_data, string_db)
+    string_data = extract_string_scores(flatten(wgcna_data), string_db)
     gene_interactions = filter_reliable_interactions(string_data)
     result_graph = build_interaction_graph(gene_interactions)
     output = save_output(result_graph)
