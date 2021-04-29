@@ -67,29 +67,40 @@ def get_stringdb() -> pandas.DataFrame:
 
 @task
 def extract_string_scores(identifiers: List[str], db: pandas.DataFrame) -> pandas.DataFrame:
+    logger = prefect.context.get("logger")
+
     df_genes = db[  
         db.preferredName_A.isin(identifiers) & db.preferredName_B.isin(identifiers)]
 
     df_genes["escore"] = df_genes["experimental"] / 1000.0
     df_genes["dscore"] = df_genes["database"] / 1000.0
-
-    return df_genes[["preferredName_A", "preferredName_B", "dscore", "escore"]]
+    return_df = df_genes[["preferredName_A", "preferredName_B", "dscore", "escore"]]
+    logger.info(return_df.head())
+    return return_df
 
 
 @task
 def filter_reliable_interactions(
         node_df: pandas.DataFrame) -> pandas.DataFrame:
+    logger = prefect.context.get("logger")
+
     filters = (
         (node_df.escore >= 0.5) |
         ((node_df.escore >= 0.3) & (node_df.dscore >= 0.9))
     )
-    return node_df[filters]
+    return_df = node_df[filters]
+    logger.info(return_df.head())
+    return return_df
 
 
 @task
 def build_interaction_graph(pattern_df: pandas.DataFrame) -> networkx.Graph:
-    return networkx.from_pandas_edgelist(
+    logger = prefect.context.get("logger")
+
+    graph = networkx.from_pandas_edgelist(
         pattern_df, "preferredName_A", "preferredName_B", edge_attr=True)
+    logger.info(graph.nodes)
+    return graph
 
 
 @task(result=LocalResult(dir=RESULT_DIR))
