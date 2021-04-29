@@ -20,4 +20,4 @@ flow.run_config = DockerRun(
     image="sgwfc/gene:latest"
 )
 flow.executor = LocalDaskExecutor()
-flow.register(project_name="sgwfc-gene", idempotency_key=flow.serialized_hash())
+flow.register(project_name="sgwfc-gene")
