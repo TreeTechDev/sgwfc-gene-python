@@ -41,7 +41,12 @@ def extract_wgcna(filename: str) -> List[str]:
         return list(filter(None, f.read().split("\n")))
 
 
-@task(checkpoint=True, result=LocalResult(dir=RESULT_DIR), cache_for=datetime.timedelta(days=1))
+@task(
+    checkpoint=True,
+    result=LocalResult(dir=RESULT_DIR),
+    cache_for=datetime.timedelta(days=1),
+    max_retries=3,
+    retry_delay=datetime.timedelta(minutes=1))
 def get_stringdb() -> pandas.DataFrame:
     logger = prefect.context.get("logger")
     df = pandas.read_csv(
