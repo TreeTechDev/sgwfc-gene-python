@@ -4,6 +4,7 @@ import datetime
 import requests
 import logging
 import prefect
+from networkx.algorithms import community
 from typing import List
 from prefect import task
 from prefect.engine.results import LocalResult
@@ -100,15 +101,28 @@ def filter_reliable_interactions(
 
 
 @task
-def build_interaction_graph(pattern_df: pandas.DataFrame) -> networkx.Graph:
+def build_interaction_graph(pattern_df: pandas.DataFrame) -> List(networkx.Graph):
     logger = prefect.context.get("logger")
 
     graph = networkx.from_pandas_edgelist(
         pattern_df, "preferredName_A", "preferredName_B", edge_attr=True)
     logger.info(graph.nodes)
-    return graph
+
+    clusters = community.girvan_newman(graph)
+    subgraphs = []
+    for cluster in next(clusters):
+        if len(cluster) >= 5:
+            subgraph = graph.subgraph(cluster).copy()
+            subgraph.remove_nodes_from(list(networkx.isolates(subgraph)))
+            subgraphs.append(subgraph)
+    for subgraph in subgraphs:
+        logger.info(subgraph.nodes)
+    return subgraphs
 
 
 @task(result=LocalResult(dir=RESULT_DIR))
-def save_output(graph: networkx.Graph) -> dict:
-    return networkx.readwrite.json_graph.cytoscape_data(graph)
+def save_output(subgraphs: List(networkx.Graph)) -> List(dict):
+    subgraphs_cytoscape = []
+    for subgraph in subgraphs:
+        subgraphs_cytoscape.append(networkx.readwrite.json_graph.cytoscape_data(subgraph))
+    return subgraphs_cytoscape

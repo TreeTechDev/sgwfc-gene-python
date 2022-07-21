@@ -13,8 +13,8 @@ with Flow("graph_building") as flow:
     string_db = get_stringdb()
     string_data = extract_string_scores(flatten(wgcna_data), string_db)
     gene_interactions = filter_reliable_interactions(string_data)
-    result_graph = build_interaction_graph(gene_interactions)
-    output = save_output(result_graph)
+    result_subgraphs = build_interaction_graph(gene_interactions)
+    output = save_output(result_subgraphs)
 
 flow.run_config = DockerRun(
     image="sgwfc/gene:latest"
