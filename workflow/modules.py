@@ -101,7 +101,7 @@ def filter_reliable_interactions(
 
 
 @task
-def build_interaction_graph(pattern_df: pandas.DataFrame) -> List(networkx.Graph):
+def build_interaction_graph(pattern_df: pandas.DataFrame) -> List[networkx.Graph]:
     logger = prefect.context.get("logger")
 
     graph = networkx.from_pandas_edgelist(
@@ -121,7 +121,7 @@ def build_interaction_graph(pattern_df: pandas.DataFrame) -> List(networkx.Graph
 
 
 @task(result=LocalResult(dir=RESULT_DIR))
-def save_output(subgraphs: List(networkx.Graph)) -> List(dict):
+def save_output(subgraphs: List[networkx.Graph]) -> List[dict]:
     subgraphs_cytoscape = []
     for subgraph in subgraphs:
         subgraphs_cytoscape.append(networkx.readwrite.json_graph.cytoscape_data(subgraph))
