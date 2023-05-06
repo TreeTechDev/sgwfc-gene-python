@@ -22,6 +22,13 @@ Workflow prototipe is [here](workflow.ipynb)
 
 You need to follow these instructions in order to make sure everything working
 
+### Build Image to Run
+
+Docker image with all R and Python workflow dependecies is built with
+```
+make build
+```
+
 ### Prefect Server
 
 ```
@@ -43,13 +50,6 @@ Everytime you change the workflow you need to run this command to register it to
 
 ```
 make flow
-```
-
-### Build Image to Run
-
-Docker image with all R and Python workflow dependecies is built with
-```
-make build
 ```
 
 ### Test engine
