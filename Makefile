@@ -9,7 +9,7 @@ notebook:
 	@jupyter-notebook
 
 build:
-	@docker build . -t sgwfc/gene:latest
+	@docker build . -t ghcr.io/biobd/sgwfc/gene:latest
 
 flow:
 	@prefect backend server

@@ -17,7 +17,7 @@ with Flow("graph_building") as flow:
     output = save_output(result_subgraphs)
 
 flow.run_config = DockerRun(
-    image="sgwfc/gene:latest"
+    image="ghcr.io/biobd/sgwfc/gene:latest"
 )
 flow.executor = LocalDaskExecutor()
 flow.register(project_name="sgwfc-gene")
