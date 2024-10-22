@@ -1,4 +1,4 @@
-jupyter==1.0.0
+#jupyter==1.0.0
 pandas==1.1.4
 networkx==2.5
 communities==2.2.0

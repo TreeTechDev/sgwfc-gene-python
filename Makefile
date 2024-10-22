@@ -1,5 +1,6 @@
 .PHONY: install build notebook flow agent test
 
+
 install:
 	@pip install -r requirements.txt
 	@pip install -r workflow/requirements.txt
@@ -26,3 +27,6 @@ agent:
 
 test:
 	@python test.py
+
+pull:
+	@docker pull ghcr.io/biobd/sgwfc/gene:latest

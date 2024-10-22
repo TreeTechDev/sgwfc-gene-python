@@ -26,7 +26,7 @@ You need to follow these instructions in order to make sure everything working
 
 Docker image with all R and Python workflow dependecies is built with
 ```
-make build
+make pull
 ```
 
 ### Prefect Server
