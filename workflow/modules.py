@@ -3,28 +3,53 @@ import networkx
 import datetime
 import requests
 import logging
+import subprocess
 import prefect
 from networkx.algorithms import community
+
 from typing import List
 from prefect import task
-from prefect.engine.results import LocalResult
-from prefect.tasks.shell import ShellTask
+from prefect.context import get_run_context
+#from prefect.tasks.shell import ShellTask
+from utils import *
+
+
+logger = logging.getLogger(__name__)
 
 RESULT_DIR = "result"
 
-build_wgcna = ShellTask(
-    name="build_wgcna",
-    checkpoint=True,
-    stream_output=logging.INFO,
-    log_stdout=True,
-    log_stderr=True,
-    result=LocalResult(dir=RESULT_DIR),
-    cache_for=datetime.timedelta(days=1)
-)
+# build_wgcna = ShellTask(
+#     name="build_wgcna",
+#     checkpoint=True,
+#     stream_output=logging.INFO,
+#     log_stdout=True,
+#     log_stderr=True,
+#     result=LocalResult(dir=RESULT_DIR),
+#     cache_for=datetime.timedelta(days=1)
+# )
+
+
+@task(name="build_wgcna", cache_result_in_memory=True, retries=1, retry_delay_seconds=5)
+def build_wgcna(command: str) -> None:
+    try:
+        result = subprocess.run(
+            command,  # Replace this with your actual shell command
+            check=True,              # Raise an error if the command fails
+            stdout=subprocess.PIPE,  # Capture stdout
+            stderr=subprocess.PIPE,  # Capture stderr
+            text=True,
+            shell=True                # Return stdout/stderr as strings
+        )
+        logging.info(f"Command output: {result.stdout}")
+        if result.stderr:
+            logging.error(f"Command error: {result.stderr}")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Shell task failed with error: {e}")
+        raise
+
 
 @task
 def get_wgcna_command(gene_filename: str) -> str:
-    logger = prefect.context.get("logger")
     command = f"Rscript WGCNA.R {gene_filename} /{RESULT_DIR}/ --verbose"
     logger.info(command)
     return command
@@ -36,20 +61,16 @@ def get_color_filenames(colors: str) -> List[str]:
 
 @task
 def extract_wgcna(filename: str) -> List[str]:
-    logger = prefect.context.get("logger")
     logger.info(filename)
     with open(filename, "r") as f:
         return list(filter(None, f.read().split("\n")))
 
 
 @task(
-    checkpoint=True,
-    result=LocalResult(dir=RESULT_DIR),
-    cache_for=datetime.timedelta(days=1),
-    max_retries=3,
-    retry_delay=datetime.timedelta(minutes=1))
+    cache_result_in_memory=True,
+    retries=3,
+    retry_delay_seconds=60)
 def get_stringdb() -> pandas.DataFrame:
-    logger = prefect.context.get("logger")
     df = pandas.read_csv(
         "https://stringdb-static.org/download/protein.links.detailed.v11.0/9606.protein.links.detailed.v11.0.txt.gz",
         sep=" "
@@ -73,9 +94,9 @@ def get_stringdb() -> pandas.DataFrame:
 
 
 @task
-def extract_string_scores(identifiers: List[str], db: pandas.DataFrame) -> pandas.DataFrame:
-    logger = prefect.context.get("logger")
+def extract_string_scores(identifiers: List[List], db: pandas.DataFrame) -> pandas.DataFrame:
     logger.info(identifiers)
+    identifiers = flatten(identifiers)
     df_genes = db[  
         db.preferredName_A.isin(identifiers) & db.preferredName_B.isin(identifiers)]
 
@@ -120,7 +141,7 @@ def build_interaction_graph(pattern_df: pandas.DataFrame) -> List[networkx.Graph
     return subgraphs
 
 
-@task(result=LocalResult(dir=RESULT_DIR))
+@task
 def save_output(subgraphs: List[networkx.Graph]) -> List[dict]:
     subgraphs_cytoscape = []
     for subgraph in subgraphs:
