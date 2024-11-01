@@ -2,13 +2,10 @@ from fastapi import FastAPI, File, UploadFile
 
 import os
 import shutil
-
+import time
 from start_workflow import *
 
 app = FastAPI()
-
-# change fastapi port to 8080
-
 
 
 @app.get("/")
@@ -18,14 +15,17 @@ def read_root():
 
 @app.post("/upload-file/")
 async def upload_file(file: UploadFile = File(...)):
-    #file_location = f"/input/{file.filename}"
-    file_location = os.path.join("workflow/input", file.filename)
-    with open(file_location, "wb") as file_object:
+
+    file_location = os.path.join("input", file.filename)
+
+    # saves the input file
+    with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
 
-    
+    # runs the workflow
     result = start_workflow(file.filename)
-    
 
-    # Call the Prefect flow with the file path
+    # removes the input file
+    os.remove(file_location)
+
     return result

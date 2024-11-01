@@ -17,7 +17,7 @@ def start_workflow(filename:str):
 
     # executa o workflow
     state = flow.run()
-    print("> foi??")
+    
     flow_id = state.result[end_flow].result
     client = Client()
 
