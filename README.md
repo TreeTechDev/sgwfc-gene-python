@@ -59,3 +59,11 @@ Will test the registered workflow calling it externally
 ```
 make test
 ```
+
+### Test with the Frontend
+
+In order to send the input file and run the workflow through the frontend server you need to run the FastApi server
+
+```
+make api
+```
