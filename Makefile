@@ -31,4 +31,4 @@ pull:
 	@docker pull ghcr.io/biobd/sgwfc/gene:latest
 
 api:
-	@uvicorn api:app --host 0.0.0.0 --port 5000
+	@uvicorn api:app --host 0.0.0.0 --port 5000 --reload

@@ -16,6 +16,7 @@ with Flow("graph_building") as flow:
     result_subgraphs = build_interaction_graph(gene_interactions)
     output = save_output(result_subgraphs)
 
+
 flow.run_config = DockerRun(
     image="ghcr.io/biobd/sgwfc/gene:latest"
 )

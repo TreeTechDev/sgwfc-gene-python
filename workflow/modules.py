@@ -22,7 +22,7 @@ build_wgcna = ShellTask(
     cache_for=datetime.timedelta(days=1)
 )
 
-@task
+@task()
 def get_wgcna_command(gene_filename: str) -> str:
     logger = prefect.context.get("logger")
     command = f"Rscript WGCNA.R {gene_filename} /{RESULT_DIR}/ --verbose"
@@ -126,3 +126,6 @@ def save_output(subgraphs: List[networkx.Graph]) -> List[dict]:
     for subgraph in subgraphs:
         subgraphs_cytoscape.append(networkx.readwrite.json_graph.cytoscape_data(subgraph))
     return subgraphs_cytoscape
+
+
+
