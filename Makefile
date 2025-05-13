@@ -9,7 +9,7 @@ notebook:
 	@jupyter-notebook
 
 build:
-	@docker build . -t ghcr.io/TreeTechDev/sgwfc/gene:latest
+	@docker build . -t ghcr.io/treetechdev/sgwfc/gene:latest
 
 flow:
 	@prefect backend server
@@ -28,7 +28,7 @@ test:
 	@python test.py
 
 pull:
-	@docker pull ghcr.io/TreeTechDev/sgwfc/gene:latest
+	@docker pull ghcr.io/treetechdev/sgwfc/gene:latest
 
 api:
 	@uvicorn api:app --host 0.0.0.0 --port 5000 --reload
