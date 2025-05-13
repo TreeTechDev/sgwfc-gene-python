@@ -4,7 +4,6 @@
 install:
 	@pip install -r requirements.txt
 	@pip install -r workflow/requirements.txt 
-	@bash download.sh
 
 notebook:
 	@jupyter-notebook
@@ -30,3 +29,6 @@ test:
 
 pull:
 	@docker pull ghcr.io/TreeTechDev/sgwfc/gene:latest
+
+api:
+	@uvicorn api:app --host 0.0.0.0 --port 5000 --reload
