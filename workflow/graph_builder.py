@@ -6,6 +6,7 @@ from modules import *
 
 with Flow("graph_building") as flow:
     gene_filename = Parameter("gene_filename", default = "/input/base_wgcna.csv")
+
     wgcna_command = get_wgcna_command(gene_filename)
     wgcna_colors = build_wgcna(command=wgcna_command)
     wgcna_color_filenames = get_color_filenames(wgcna_colors)
@@ -21,3 +22,6 @@ flow.run_config = DockerRun(
 )
 flow.executor = LocalDaskExecutor()
 flow.register(project_name="sgwfc-gene")
+
+if __name__ == "__main__":
+    flow.run()
