@@ -3,14 +3,14 @@
 
 install:
 	@pip install -r requirements.txt
-	@pip install -r workflow/requirements.txt
+	@pip install -r workflow/requirements.txt 
 	@bash download.sh
 
 notebook:
 	@jupyter-notebook
 
 build:
-	@docker build . -t ghcr.io/biobd/sgwfc/gene:latest
+	@docker build . -t ghcr.io/TreeTechDev/sgwfc/gene:latest
 
 flow:
 	@prefect backend server
@@ -29,4 +29,4 @@ test:
 	@python test.py
 
 pull:
-	@docker pull ghcr.io/biobd/sgwfc/gene:latest
+	@docker pull ghcr.io/TreeTechDev/sgwfc/gene:latest
