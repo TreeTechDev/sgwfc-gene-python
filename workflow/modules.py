@@ -25,7 +25,8 @@ build_wgcna = ShellTask(
 @task()
 def get_wgcna_command(gene_filename: str) -> str:
     logger = prefect.context.get("logger")
-    command = f"Rscript WGCNA.R {gene_filename} /{RESULT_DIR}/ --verbose"
+    #command = f"Rscript WGCNA.R {gene_filename} /{RESULT_DIR}/ --verbose"
+    command = f"Rscript workflow/WGCNA.R {gene_filename} /{RESULT_DIR}/ --verbose"
     logger.info(command)
     return command
 
