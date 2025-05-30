@@ -2,6 +2,15 @@
 
 DOC = "WGCNA for CRC consensus molecular subtypes"
 
+#config manual de repositorios antigos
+options(repos = c(
+  CRAN = "https://packagemanager.posit.co/cran/2021-01-01",
+  BioCsoft = "https://bioconductor.org/packages/3.12/bioc",
+  BioCann = "https://bioconductor.org/packages/3.12/data/annotation",
+  BioCexp = "https://bioconductor.org/packages/3.12/data/experiment",
+  BioCwrk = "https://bioconductor.org/packages/3.12/workflows"
+))
+
 
 #renv::restore(prompt = FALSE)
 
