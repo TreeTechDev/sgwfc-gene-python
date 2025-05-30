@@ -3,7 +3,10 @@
 DOC = "WGCNA for CRC consensus molecular subtypes"
 
 
-renv::restore(prompt = FALSE)
+#renv::restore(prompt = FALSE)
+
+renv::restore(project = "workflow", prompt = FALSE)
+
 
 args = commandArgs(trailingOnly=TRUE)
 
