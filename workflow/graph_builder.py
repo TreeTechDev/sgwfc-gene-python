@@ -19,7 +19,7 @@ with Flow("graph_building") as flow:
 
 
 flow.run_config = DockerRun(
-    image="ghcr.io/biobd/sgwfc/gene:latest"
+    image="ghcr.io/treetechdev/sgwfc/gene:latest"
 )
 flow.executor = LocalDaskExecutor()
 flow.register(project_name="sgwfc-gene")
