@@ -10,13 +10,13 @@ make install
 
 ## Prototype
 
-### Opening notebook
+### Opening notebook (Optional)
 
 ```
 make notebook
 ```
 
-Workflow prototipe is [here](workflow.ipynb)
+Workflow prototipe is [here](analysis/workflow.ipynb)
 
 ## Using
 
@@ -42,7 +42,7 @@ Should be up and running on http://localhost:8080
 ```
 make agent
 ```
-This command will create a new project called `sgwfc-gene` on Prefect and start an Agent to run workflows
+This command will create a new worker called `sgwfc-gene` on Prefect and start an Agent to run workflows
 
 ### Register Workflow
 
