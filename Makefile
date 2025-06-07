@@ -18,7 +18,7 @@ flow:
 
 server:
 	@prefect config set PREFECT_RESULTS_PERSIST_BY_DEFAULT=true
-	@prefect config set PREFECT_LOCAL_STORAGE_PATH='/result'
+	@prefect config set PREFECT_LOCAL_STORAGE_PATH='/workflow/result'
 	@prefect server start
 
 agent:
