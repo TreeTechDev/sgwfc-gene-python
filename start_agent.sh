@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
-#prefect agent docker start --no-pull --no-docker-interface --volume $HOME --volume `pwd`/workflow:/workflow --volume `pwd`/input:/workflow/input --volume `pwd`/result:/workflow/result -l `hostname` --log-level DEBUG
-prefect agent docker start --no-pull --volume $HOME --volume `pwd`/workflow:/workflow --volume `pwd`/input:/workflow/input --volume `pwd`/result:/workflow/result -l `hostname` --log-level DEBUG
+
+prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
+prefect work-pool create --overwrite --type docker sgwfc-gene
+prefect worker start --pool sgwfc-gene

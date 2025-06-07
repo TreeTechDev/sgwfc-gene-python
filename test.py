@@ -1,28 +1,22 @@
 import time
-from prefect.tasks.prefect import StartFlowRun
-from prefect import Flow, task, Client
-from prefect.run_configs import LocalRun
+import asyncio
+from prefect.deployments import run_deployment
+from prefect import get_client
 
-graph_building = StartFlowRun(
-      flow_name="graph_building",
-      project_name="sgwfc-gene",
-      wait=False
-)
 
-with Flow("Call Flow") as flow:
-    end_flow = graph_building(parameters=dict(gene_filename="/input/base_wgcna.csv"))
+async def main():
+    flow_run = await run_deployment(name="graph-building/sgwfc-gene")
 
-flow.run_config = LocalRun(
-    labels=["teste"]
-)
-state = flow.run()
-flow_id = state.result[end_flow].result
-client = Client()
+    flow_run_id = flow_run.id
 
-while not client.get_flow_run_info(flow_id).state.is_finished():
-    time.sleep(10)
-info = client.get_flow_run_info(flow_id)
-last_task = info.task_runs.pop()
-res = last_task.state.load_result(last_task.state._result).result
+    async with get_client() as client:
+        flow_run = await client.read_flow_run(flow_run_id)
+        while not flow_run.state.is_completed():
+            time.sleep(10)
+            print(f"Current state of the flow run: {flow_run.state}")
 
-print(res)
+    res = last_task.state.load_result(last_task.state._result).result
+
+    print(res)
+
+asyncio.run(main())

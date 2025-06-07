@@ -1,28 +1,28 @@
-from prefect import Flow, Parameter, flatten
-from prefect.run_configs import DockerRun
-from prefect.executors import LocalDaskExecutor
+import os
+from prefect import flow
+from prefect.deployments import DeploymentImage
 from modules import *
 
 
-with Flow("graph_building") as flow:
-    gene_filename = Parameter("gene_filename", default = "/input/base_wgcna.csv")
+@flow(log_prints=True)
+def graph_building(gene_filename: str):
 
-    wgcna_command = get_wgcna_command(gene_filename)
-    wgcna_colors = build_wgcna(command=wgcna_command)
+    wgcna_colors = build_wgcna(gene_filename)
     wgcna_color_filenames = get_color_filenames(wgcna_colors)
     wgcna_data = extract_wgcna.map(wgcna_color_filenames)
     string_db = get_stringdb()
-    string_data = extract_string_scores(flatten(wgcna_data), string_db)
+    string_data = extract_string_scores(sum(wgcna_data.result(), []), string_db)
     gene_interactions = filter_reliable_interactions(string_data)
     result_subgraphs = build_interaction_graph(gene_interactions)
     output = save_output(result_subgraphs)
 
 
-flow.run_config = DockerRun(
-    image="ghcr.io/biobd/sgwfc/gene:latest"
-)
-flow.executor = LocalDaskExecutor()
-flow.register(project_name="sgwfc-gene")
-
 if __name__ == "__main__":
-    flow.run()
+    image = 'ghcr.io/treetechdev/sgwfc/gene:2.0'
+    image = DeploymentImage(
+            name="ghcr.io/treetechdev/sgwfc/gene",
+            tag="dev",
+            dockerfile="Dockerfile.dev"
+        )
+    path = os.path.dirname(os.path.realpath(__file__))
+    graph_building.deploy(name="sgwfc-gene", work_pool_name="sgwfc-gene", image=image, build=False, push=False,  parameters=dict(gene_filename="/input/base_wgcna.csv"), job_variables={"volumes": [f"{path}:/workflow"]})
