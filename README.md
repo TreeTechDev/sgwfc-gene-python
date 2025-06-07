@@ -42,7 +42,7 @@ Should be up and running on http://localhost:4200
 ```
 make agent
 ```
-This command will create a new worker called `sgwfc-gene` on Prefect and start an Worker (was called Agent) to run workflows
+This command will create a new worker called `sgwfc-gene` on Prefect and start a Worker (was called Agent) to run workflows
 
 ### Register Workflow
 
