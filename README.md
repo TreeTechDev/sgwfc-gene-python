@@ -35,18 +35,18 @@ make pull
 make server
 ```
 
-Should be up and running on http://localhost:8080
+Should be up and running on http://localhost:4200
 
 ### Prefect Agent
 
 ```
 make agent
 ```
-This command will create a new worker called `sgwfc-gene` on Prefect and start an Agent to run workflows
+This command will create a new worker called `sgwfc-gene` on Prefect and start an Worker (was called Agent) to run workflows
 
 ### Register Workflow
 
-Everytime you change the workflow you need to run this command to register it to Prefect
+Everytime you change the workflow requirements you need to run this command to register it to Prefect. Workflow code is already mounted inside agent and every change in your pc changes agent too
 
 ```
 make flow
@@ -59,6 +59,8 @@ Will test the registered workflow calling it externally
 ```
 make test
 ```
+
+All inputs inside `worflow/input` folder will be available for workflow and all results are stored pickle encoded inside `workflow/result` folder
 
 ### Test with the Frontend
 
