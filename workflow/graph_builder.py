@@ -11,7 +11,11 @@ def graph_building(gene_filename: str):
     wgcna_color_filenames = get_color_filenames(wgcna_colors)
     wgcna_data = extract_wgcna.map(wgcna_color_filenames)
     string_db = get_stringdb()
-    string_data = extract_string_scores(sum(wgcna_data.result(), []), string_db)
+    string_data = extract_string_scores([
+        wgcna_result
+        for wgcna in wgcna_data
+        for wgcna_result in wgcna.wait().result()
+    ], string_db)
     gene_interactions = filter_reliable_interactions(string_data)
     result_subgraphs = build_interaction_graph(gene_interactions)
     output = save_output(result_subgraphs)
