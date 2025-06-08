@@ -1,0 +1,9 @@
+FROM ghcr.io/treetechdev/sgwfc/gene:2.0
+
+ADD workflow/*.py /workflow/
+ADD workflow/requirements.txt /workflow/requirements.txt
+ADD Dockerfile.dev /workflow/Dockerfile.dev
+
+WORKDIR /workflow
+
+RUN pip3 install -r requirements.txt

@@ -101,6 +101,9 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# Mac
+*/.DS_Store
+
 # Environments
 .env
 .venv
@@ -130,7 +133,7 @@ dmypy.json
 
 # Project
 .vscode
-result/*
-!result/.keep
-input/*
-!input/.keep
+workflow/result/*
+!workflow/result/.keep
+workflow/input/*
+!workflow/input/.keep

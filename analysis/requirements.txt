@@ -1,0 +1,11 @@
+pandas==2.0.3
+networkx==3.1
+communities==3.0.0
+python-igraph
+matplotlib
+scipy
+requests
+cloudpickle
+fastapi
+uvicorn
+python-multipart

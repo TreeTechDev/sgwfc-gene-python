@@ -1,3 +1,4 @@
+import os
 import pandas
 import networkx
 import datetime
@@ -6,50 +7,46 @@ import logging
 import prefect
 from networkx.algorithms import community
 from typing import List
-from prefect import task
-from prefect.engine.results import LocalResult
-from prefect.tasks.shell import ShellTask
+from prefect import task, get_run_logger
+from prefect_shell import ShellOperation
+from prefect_shell import shell_run_command
 
 RESULT_DIR = "result"
 
-build_wgcna = ShellTask(
-    name="build_wgcna",
-    checkpoint=True,
-    stream_output=logging.INFO,
-    log_stdout=True,
-    log_stderr=True,
-    result=LocalResult(dir=RESULT_DIR),
-    cache_for=datetime.timedelta(days=1)
-)
 
-@task()
-def get_wgcna_command(gene_filename: str) -> str:
-    logger = prefect.context.get("logger")
+@task(cache_expiration=datetime.timedelta(days=1))
+def build_wgcna(gene_filename: str) -> str:
+    logger = get_run_logger()
     command = f"Rscript WGCNA.R {gene_filename} /{RESULT_DIR}/ --verbose"
     logger.info(command)
-    return command
+    return shell_run_command(command=command, return_all=False, stream_level=logging.DEBUG)
+    ## another possible way to do ir
+    #with ShellOperation(commands=[command]) as R_application:
+    #    run_R_application = R_application.trigger()
+    #    run_R_application.wait_for_completion()
+    #    return run_R_application.fetch_result()
 
 
 @task
 def get_color_filenames(colors: str) -> List[str]:
-    return [f"{RESULT_DIR}/{c}" for c in colors.split(" ")]
+    return [f"/{RESULT_DIR}/{c}" for c in colors.split(" ")]
 
 @task
 def extract_wgcna(filename: str) -> List[str]:
-    logger = prefect.context.get("logger")
+    logger = get_run_logger()
     logger.info(filename)
-    with open(filename, "r") as f:
-        return list(filter(None, f.read().split("\n")))
+    if os.path.isfile(filename):
+        with open(filename, "r") as f:
+            return list(filter(None, f.read().split("\n")))
+    return []
 
 
 @task(
-    checkpoint=True,
-    result=LocalResult(dir=RESULT_DIR),
-    cache_for=datetime.timedelta(days=1),
-    max_retries=3,
-    retry_delay=datetime.timedelta(minutes=1))
+    cache_expiration=datetime.timedelta(days=1),
+    retries=3,
+    retry_delay_seconds=60)
 def get_stringdb() -> pandas.DataFrame:
-    logger = prefect.context.get("logger")
+    logger = get_run_logger()
     df = pandas.read_csv(
         "https://stringdb-static.org/download/protein.links.detailed.v11.0/9606.protein.links.detailed.v11.0.txt.gz",
         sep=" "
@@ -74,7 +71,7 @@ def get_stringdb() -> pandas.DataFrame:
 
 @task
 def extract_string_scores(identifiers: List[str], db: pandas.DataFrame) -> pandas.DataFrame:
-    logger = prefect.context.get("logger")
+    logger = get_run_logger()
     logger.info(identifiers)
     df_genes = db[  
         db.preferredName_A.isin(identifiers) & db.preferredName_B.isin(identifiers)]
@@ -89,7 +86,7 @@ def extract_string_scores(identifiers: List[str], db: pandas.DataFrame) -> panda
 @task
 def filter_reliable_interactions(
         node_df: pandas.DataFrame) -> pandas.DataFrame:
-    logger = prefect.context.get("logger")
+    logger = get_run_logger()
 
     filters = (
         (node_df.escore >= 0.5) |
@@ -102,7 +99,7 @@ def filter_reliable_interactions(
 
 @task
 def build_interaction_graph(pattern_df: pandas.DataFrame) -> List[networkx.Graph]:
-    logger = prefect.context.get("logger")
+    logger = get_run_logger()
 
     graph = networkx.from_pandas_edgelist(
         pattern_df, "preferredName_A", "preferredName_B", edge_attr=True)
@@ -120,7 +117,7 @@ def build_interaction_graph(pattern_df: pandas.DataFrame) -> List[networkx.Graph
     return subgraphs
 
 
-@task(result=LocalResult(dir=RESULT_DIR))
+@task()
 def save_output(subgraphs: List[networkx.Graph]) -> List[dict]:
     subgraphs_cytoscape = []
     for subgraph in subgraphs:
